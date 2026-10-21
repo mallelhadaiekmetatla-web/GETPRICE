@@ -130,7 +130,7 @@ async function loadProducts() {
     for (const row of rows) {
       const barcode = normalizeBarcode(
         getColumn(row, [
-          "CODE BARRE",
+          "Code Barre",
           "CODE BARRES",
           "CODE_BARRE",
           "BARCODE",
@@ -144,14 +144,14 @@ async function loadProducts() {
         getColumn(row, [
           "DESIGNATION",
           "DESIGNATION PRODUIT",
-          "NOM PRODUIT",
+          "Produit",
           "PRODUCT NAME"
         ]) ?? ""
       ).trim();
 
       const price = parsePrice(
         getColumn(row, [
-          "PRIX DE VENTE",
+          "Prix de Vente H.T",
           "PRIX_DE_VENTE",
           "PRIX VENTE",
           "PRICE",

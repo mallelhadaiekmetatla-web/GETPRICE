@@ -118,10 +118,13 @@ async function loadProducts() {
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-    const rows = XLSX.utils.sheet_to_json(sheet, {
-      defval: "",
-      raw: false
-    });
+   const rows = XLSX.utils.sheet_to_json(sheet, {
+  defval: "",
+  raw: false,
+  header: 1
+});
+
+console.log("Excel rows:", rows.slice(0, 5));
 
     products.clear();
 

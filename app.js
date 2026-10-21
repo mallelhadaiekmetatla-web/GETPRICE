@@ -117,66 +117,67 @@ async function loadProducts() {
 
     const sheet = workbook.Sheets[workbook.SheetNames[0]];
 
-   const rows = XLSX.utils.sheet_to_json(sheet, {
+
+const rows = XLSX.utils.sheet_to_json(sheet, {
   defval: "",
-  raw: false,
-  header: 1
+  raw: false
 });
 
-console.log("Excel rows:", rows.slice(0, 5));
+console.log("Excel headers:", Object.keys(rows[0] ?? {}));
+console.log("Excel first rows:", rows.slice(0, 5));
 
-    products.clear();
+products.clear();
+let invalidRows = 0;
 
-    let invalidRows = 0;
+for (const row of rows) {
+  const barcode = normalizeBarcode(
+    getColumn(row, [
+      "CODE BARRE",
+      "CODE BARRES",
+      "CODE_BARRE",
+      "BARCODE",
+      "BAR CODE",
+      "EAN",
+      "EAN13"
+    ])
+  );
 
-    for (const row of rows) {
-      const barcode = normalizeBarcode(
-        getColumn(row, [
-          "Code Barre",
-          "CODE BARRES",
-          "CODE_BARRE",
-          "BARCODE",
-          "BAR CODE",
-          "EAN",
-          "EAN13"
-        ])
-      );
+  const designation = String(
+    getColumn(row, [
+      "DESIGNATION",
+      "DESIGNATION PRODUIT",
+      "PRODUIT",
+      "PRODUCT NAME"
+    ]) ?? ""
+  ).trim();
 
-      const designation = String(
-        getColumn(row, [
-          "DESIGNATION",
-          "DESIGNATION PRODUIT",
-          "Produit",
-          "PRODUCT NAME"
-        ]) ?? ""
-      ).trim();
+  const price = parsePrice(
+    getColumn(row, [
+      "PRIX DE VENTE",
+      "PRIX DE VENTE H.T",
+      "PRIX_DE_VENTE",
+      "PRIX VENTE",
+      "PRICE",
+      "SELLING PRICE"
+    ])
+  );
 
-      const price = parsePrice(
-        getColumn(row, [
-          "Prix de Vente H.T",
-          "PRIX_DE_VENTE",
-          "PRIX VENTE",
-          "PRICE",
-          "SELLING PRICE"
-        ])
-      );
+  if (!barcode && !designation && !Number.isFinite(price)) {
+    continue;
+  }
 
-      // تجاهل الصفوف الفارغة
-      if (!barcode && !designation && !Number.isFinite(price)) {
-        continue;
-      }
+  if (!barcode || !designation || !Number.isFinite(price)) {
+    invalidRows++;
+    continue;
+  }
 
-      if (!barcode || !designation || !Number.isFinite(price)) {
-        invalidRows++;
-        continue;
-      }
+  products.set(barcode, {
+    barcode,
+    designation,
+    price
+  });
+}
 
-      products.set(barcode, {
-        barcode,
-        designation,
-        price
-      });
-    }
 
     if (products.size === 0) {
       status.textContent = "لم يتم العثور على منتجات صالحة";

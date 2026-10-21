@@ -1,4 +1,3 @@
-
 const EXCEL_PATH = "./data/products.xlsx";
 
 let products = new Map();
